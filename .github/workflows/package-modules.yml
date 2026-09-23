@@ -5,6 +5,7 @@ name: Package module print files
 on:
   push:
     branches: [main]
+  workflow_dispatch: {}  # manual run repackages every module
 
 permissions:
   contents: write
