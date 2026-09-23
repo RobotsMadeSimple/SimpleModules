@@ -24,13 +24,13 @@ jobs:
         run: |
           set -euo pipefail
           before="${{ github.event.before }}"
-          if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
-            # First push / new branch: diff against the root commit so every module is packaged.
-            base="$(git rev-list --max-parents=0 HEAD | tail -n1)"
-            diff_range="$base ${{ github.sha }}"
+          if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "${before}^{commit}" 2>/dev/null; then
+            # First push / new branch / unavailable base: diff against the empty tree so every module is packaged.
+            base="$(git hash-object -t tree /dev/null)"
           else
-            diff_range="$before ${{ github.sha }}"
+            base="$before"
           fi
+          diff_range="$base ${{ github.sha }}"
           echo "Diffing: $diff_range"
 
           # Top-level dir of each changed path, excluding infra dirs and root-level files.
